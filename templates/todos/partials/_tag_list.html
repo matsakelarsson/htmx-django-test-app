@@ -1,0 +1,7 @@
+<div id="tag-list"{% if oob %} hx-swap-oob="true"{% endif %} class="space-y-3">
+  {% for card in cards %}
+    {% include "todos/partials/_tag.html" %}
+  {% empty %}
+    <p class="text-sm text-slate-500 dark:text-slate-400">No tags yet. Create one above.</p>
+  {% endfor %}
+</div>

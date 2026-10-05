@@ -12,3 +12,15 @@ class Todo(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Tag(models.Model):
+    name = models.CharField(max_length=40, unique=True)
+    # Dropping a todo on a tag adds a row to this relation.
+    todos = models.ManyToManyField(Todo, related_name="tags", blank=True)
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name

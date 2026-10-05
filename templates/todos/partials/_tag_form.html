@@ -1,0 +1,14 @@
+<form id="tag-form" class="mb-2 flex flex-wrap items-center gap-2"
+      method="post" action="{% url 'todos:tag_create' %}"
+      hx-post="{% url 'todos:tag_create' %}"
+      hx-target="this" hx-swap="outerHTML">
+  {% csrf_token %}
+  {{ tag_form.name }}
+  <button type="submit" id="tag-form-submit"
+          class="rounded-lg bg-blue-600 px-4 py-2.5 font-medium text-white hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:bg-blue-500 dark:hover:bg-blue-400">
+    Add tag
+  </button>
+  {% if tag_form.name.errors %}
+    <p id="{{ tag_form.name.id_for_label }}_error" class="basis-full text-sm text-red-700 dark:text-red-400" role="alert">{{ tag_form.name.errors.0 }}</p>
+  {% endif %}
+</form>

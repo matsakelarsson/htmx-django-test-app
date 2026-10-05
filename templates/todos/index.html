@@ -3,8 +3,25 @@
 {% block title %}Todos · HTMX + Django{% endblock %}
 
 {% block content %}
-  <h1 class="mb-4 text-2xl font-semibold tracking-tight">Todos</h1>
-  {% include "todos/partials/_form.html" %}
-  {% include "todos/partials/_list.html" %}
-  {% include "todos/partials/_status.html" %}
+  {# group/board lets drop targets react, in CSS, to a todo row being dragged. #}
+  <div class="group/board grid items-start gap-10 md:grid-cols-2">
+    {# Set by a todo row on dragstart and sent by whichever tag receives the drop. #}
+    <input type="hidden" id="dragged-todo" name="todo">
+    <section aria-labelledby="todos-heading">
+      <h1 id="todos-heading" class="mb-4 text-2xl font-semibold tracking-tight">Todos</h1>
+      {% include "todos/partials/_form.html" %}
+      {% include "todos/partials/_list.html" %}
+      {% include "todos/partials/_status.html" %}
+    </section>
+
+    <section aria-labelledby="tags-heading">
+      <h2 id="tags-heading" class="mb-4 text-2xl font-semibold tracking-tight">Tags</h2>
+      {% include "todos/partials/_tag_form.html" %}
+      {% include "todos/partials/_tag_status.html" %}
+      {% include "todos/partials/_tag_list.html" %}
+      <p class="mt-3 text-sm text-slate-500 dark:text-slate-400">
+        Drag a todo onto a tag to add it. Each tag also has a picker that works without dragging.
+      </p>
+    </section>
+  </div>
 {% endblock %}

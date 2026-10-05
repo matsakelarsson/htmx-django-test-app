@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Todo
+from .models import Tag, Todo
 
 INPUT_CLASSES = (
     "min-w-56 flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-slate-900 "
@@ -27,3 +27,31 @@ class TodoForm(forms.ModelForm):
                 }
             )
         }
+
+
+class TagForm(forms.ModelForm):
+    class Meta:
+        model = Tag
+        fields = ["name"]
+        widgets = {
+            "name": forms.TextInput(
+                attrs={
+                    "class": INPUT_CLASSES,
+                    "placeholder": "New tag",
+                    "autocomplete": "off",
+                    "aria-label": "New tag",
+                }
+            )
+        }
+
+
+class AddTodoForm(forms.Form):
+    """Validates the todo sent by a drop or by a tag's picker."""
+
+    todo = forms.ModelChoiceField(
+        queryset=Todo.objects.all(),
+        error_messages={
+            "required": "Choose a todo to add.",
+            "invalid_choice": "That todo no longer exists.",
+        },
+    )

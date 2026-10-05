@@ -1,5 +1,17 @@
-<li id="todo-{{ todo.pk }}"
-    class="flex items-center gap-3 border-t border-slate-200 px-4 py-2.5 first:border-t-0 dark:border-slate-800">
+{% comment %}
+  Drag source. dragstart records which todo is moving in #dragged-todo, which drop targets
+  submit with hx-include, and sets data-dragging, which CSS uses to reveal the drop targets.
+  The custom data type keeps the row from being dropped into other pages or text fields.
+{% endcomment %}
+<li id="todo-{{ todo.pk }}" draggable="true" data-todo-id="{{ todo.pk }}"
+    hx-on:dragstart="event.dataTransfer.setData('application/x-todo-id', this.dataset.todoId); event.dataTransfer.effectAllowed = 'copy'; document.getElementById('dragged-todo').value = this.dataset.todoId; this.dataset.dragging = ''"
+    hx-on:dragend="delete this.dataset.dragging"
+    class="flex cursor-grab items-center gap-3 border-t border-slate-200 px-4 py-2.5 first:border-t-0 active:cursor-grabbing data-dragging:opacity-50 dark:border-slate-800">
+  <svg aria-hidden="true" viewBox="0 0 8 14" class="h-3.5 w-2 shrink-0 fill-slate-400 dark:fill-slate-500">
+    <circle cx="1.5" cy="2" r="1.5"/><circle cx="6.5" cy="2" r="1.5"/>
+    <circle cx="1.5" cy="7" r="1.5"/><circle cx="6.5" cy="7" r="1.5"/>
+    <circle cx="1.5" cy="12" r="1.5"/><circle cx="6.5" cy="12" r="1.5"/>
+  </svg>
   <input type="checkbox" {% if todo.done %}checked{% endif %}
          class="size-4 shrink-0 accent-blue-600 dark:accent-blue-400"
          aria-label="Mark “{{ todo.title }}” as {% if todo.done %}not done{% else %}done{% endif %}"
