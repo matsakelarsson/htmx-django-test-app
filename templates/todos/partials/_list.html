@@ -1,0 +1,4 @@
+<ul id="todo-list"
+    class="rounded-xl border border-slate-200 bg-white empty:hidden dark:border-slate-800 dark:bg-slate-900">
+  {% for todo in todos %}{% include "todos/partials/_item.html" %}{% endfor %}
+</ul>

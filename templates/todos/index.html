@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}Todos · HTMX + Django{% endblock %}
+
+{% block content %}
+  <h1 class="mb-4 text-2xl font-semibold tracking-tight">Todos</h1>
+  {% include "todos/partials/_form.html" %}
+  {% include "todos/partials/_list.html" %}
+  {% include "todos/partials/_status.html" %}
+{% endblock %}

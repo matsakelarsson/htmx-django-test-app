@@ -1,0 +1,14 @@
+<li id="todo-{{ todo.pk }}"
+    class="flex items-center gap-3 border-t border-slate-200 px-4 py-2.5 first:border-t-0 dark:border-slate-800">
+  <input type="checkbox" {% if todo.done %}checked{% endif %}
+         class="size-4 shrink-0 accent-blue-600 dark:accent-blue-400"
+         aria-label="Mark “{{ todo.title }}” as {% if todo.done %}not done{% else %}done{% endif %}"
+         hx-post="{% url 'todos:toggle' todo.pk %}"
+         hx-target="#todo-{{ todo.pk }}" hx-swap="outerHTML">
+  <span class="flex-1{% if todo.done %} text-slate-500 line-through dark:text-slate-400{% endif %}">{{ todo.title }}</span>
+  <button type="button"
+          class="rounded px-2 py-1 text-lg leading-none text-slate-400 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:hover:text-red-400"
+          aria-label="Delete “{{ todo.title }}”"
+          hx-delete="{% url 'todos:delete' todo.pk %}"
+          hx-target="#todo-{{ todo.pk }}" hx-swap="delete">×</button>
+</li>

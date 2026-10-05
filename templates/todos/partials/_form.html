@@ -1,0 +1,17 @@
+<form id="todo-form"{% if oob %} hx-swap-oob="true"{% endif %}
+      class="mb-4 flex flex-wrap items-center gap-2"
+      method="post" action="{% url 'todos:create' %}"
+      hx-post="{% url 'todos:create' %}"
+      hx-target="#todo-list" hx-swap="beforeend"
+      hx-indicator="#form-indicator">
+  {% csrf_token %}
+  {{ form.title }}
+  <button type="submit"
+          class="rounded-lg bg-blue-600 px-4 py-2.5 font-medium text-white hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:bg-blue-500 dark:hover:bg-blue-400">
+    Add
+  </button>
+  <span id="form-indicator" class="htmx-indicator text-sm text-slate-500 dark:text-slate-400" aria-hidden="true">Saving…</span>
+  {% if form.title.errors %}
+    <p id="{{ form.title.id_for_label }}_error" class="basis-full text-sm text-red-700 dark:text-red-400" role="alert">{{ form.title.errors.0 }}</p>
+  {% endif %}
+</form>

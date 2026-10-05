@@ -1,0 +1,16 @@
+{% load tailwind_cli %}<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}HTMX + Django{% endblock %}</title>
+  {% tailwind_css %}
+  <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.11/dist/htmx.min.js" defer></script>
+</head>
+<body class="min-h-full bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100"
+      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  <main class="mx-auto max-w-xl px-4 py-12">
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

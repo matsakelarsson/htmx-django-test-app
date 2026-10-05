@@ -1,0 +1,14 @@
+<div id="todo-status"{% if oob %} hx-swap-oob="true"{% endif %}
+     class="mt-3 flex items-center justify-between text-sm text-slate-500 dark:text-slate-400">
+  {% if total %}
+    <span>{{ done }} of {{ total }} done</span>
+    {% if done %}
+      <button type="button"
+              class="rounded-lg border border-slate-300 px-3 py-1.5 text-slate-600 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+              hx-post="{% url 'todos:clear_completed' %}"
+              hx-target="#todo-list" hx-swap="outerHTML">Clear completed</button>
+    {% endif %}
+  {% else %}
+    <span>Nothing here yet. Add your first todo above.</span>
+  {% endif %}
+</div>
