@@ -1,5 +1,7 @@
 from django import forms
 
+from datepicker.widgets import DatePickerInput
+
 from .models import Tag, Todo
 
 INPUT_CLASSES = (
@@ -15,7 +17,7 @@ class TodoForm(forms.ModelForm):
 
     class Meta:
         model = Todo
-        fields = ["title"]
+        fields = ["title", "due_date"]
         widgets = {
             "title": forms.TextInput(
                 attrs={
@@ -25,7 +27,8 @@ class TodoForm(forms.ModelForm):
                     "autofocus": True,
                     "aria-label": "New todo",
                 }
-            )
+            ),
+            "due_date": DatePickerInput(),
         }
 
 

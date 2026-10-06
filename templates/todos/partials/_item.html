@@ -18,6 +18,10 @@
          hx-post="{% url 'todos:toggle' todo.pk %}"
          hx-target="#todo-{{ todo.pk }}" hx-swap="outerHTML">
   <span class="flex-1{% if todo.done %} text-slate-500 line-through dark:text-slate-400{% endif %}">{{ todo.title }}</span>
+  {% if todo.due_date %}
+    <time datetime="{{ todo.due_date|date:'Y-m-d' }}"
+          class="shrink-0 text-xs {% if todo.overdue %}font-medium text-red-700 dark:text-red-400{% else %}text-slate-500 dark:text-slate-400{% endif %}">{% if todo.overdue %}Overdue · {% else %}Due {% endif %}{{ todo.due_date|date:"j M Y" }}</time>
+  {% endif %}
   <button type="button"
           class="rounded px-2 py-1 text-lg leading-none text-slate-400 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:hover:text-red-400"
           aria-label="Delete “{{ todo.title }}”"

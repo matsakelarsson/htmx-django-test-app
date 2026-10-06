@@ -1,0 +1,49 @@
+{% partialdef nav_buttons %}
+  {% for button in buttons %}
+    <button type="button" id="{{ id }}-{{ button.key }}"
+            aria-label="{{ button.label }}, {{ button.target|date:'F Y' }}"
+            {% if button.url %}hx-get="{{ button.url }}" hx-target="#{{ id }}-calendar" hx-swap="innerHTML"{% else %}disabled{% endif %}
+            class="size-8 rounded-full text-lg leading-none text-slate-600 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-blue-600 disabled:opacity-30 dark:text-slate-300 dark:hover:bg-slate-800">{{ button.symbol }}</button>
+  {% endfor %}
+{% endpartialdef %}
+<div class="p-3">
+  <div class="mb-2 flex items-center gap-1">
+    {% with buttons=nav_before %}{% partial nav_buttons %}{% endwith %}
+    <h2 id="{{ id }}-month" aria-live="polite" class="flex-1 text-center text-sm font-semibold">{{ month|date:"F Y" }}</h2>
+    {% with buttons=nav_after %}{% partial nav_buttons %}{% endwith %}
+  </div>
+
+  <table class="w-full table-fixed border-collapse text-center" aria-labelledby="{{ id }}-month">
+    <thead>
+      <tr>
+        {% for weekday in weekdays %}
+          <th scope="col" class="pb-1 text-xs font-medium text-slate-500 dark:text-slate-400"><abbr title="{{ weekday.name }}" class="no-underline">{{ weekday.abbr }}</abbr></th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for week in weeks %}
+        <tr>
+          {% for day in week %}
+            <td class="p-0.5">
+              {# State lives in ARIA attributes, and Tailwind styles from those same attributes. #}
+              <button type="button"
+                      hx-get="{{ day.pick_url }}" hx-target="#{{ id }}-picker" hx-swap="outerHTML"
+                      aria-label="{{ day.date|date:'l j F Y' }}"{% if day.selected %} aria-pressed="true"{% endif %}{% if day.today %} aria-current="date"{% endif %}{% if day.outside %} tabindex="-1"{% if not day.selected %} data-outside{% endif %}{% endif %}{% if day.focus %} autofocus{% endif %}
+                      class="size-9 rounded-full text-sm text-slate-900 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-600 aria-pressed:bg-blue-600 aria-pressed:font-semibold aria-pressed:text-white aria-pressed:hover:bg-blue-700 aria-[current=date]:ring-1 aria-[current=date]:ring-blue-600 data-outside:text-slate-400 dark:text-slate-100 dark:hover:bg-slate-800 dark:aria-pressed:bg-blue-500 dark:aria-pressed:hover:bg-blue-400 dark:aria-[current=date]:ring-blue-400 dark:data-outside:text-slate-500">{{ day.date.day }}</button>
+            </td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="mt-2 flex items-center justify-between border-t border-slate-200 pt-2 dark:border-slate-700">
+    <button type="button" id="{{ id }}-today"
+            hx-get="{{ today_url }}" hx-target="#{{ id }}-picker" hx-swap="outerHTML"
+            class="rounded-lg px-2 py-1 text-sm font-medium text-blue-700 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-blue-600 dark:text-blue-300 dark:hover:bg-slate-800">Today</button>
+    <button type="button" id="{{ id }}-clear"
+            hx-get="{{ clear_url }}" hx-target="#{{ id }}-picker" hx-swap="outerHTML"
+            class="rounded-lg px-2 py-1 text-sm text-slate-600 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-blue-600 dark:text-slate-300 dark:hover:bg-slate-800">Clear</button>
+  </div>
+</div>

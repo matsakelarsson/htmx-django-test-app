@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.contrib.staticfiles import finders
 from django.test import TestCase
 from django.urls import reverse
@@ -303,3 +305,45 @@ class HtmxScriptTests(TestCase):
     def test_bundled_htmx_file_exists(self):
         # Fails loudly if a django-htmx upgrade renames the bundled file.
         self.assertIsNotNone(finders.find("django_htmx/htmx-2.min.js"))
+
+
+class DueDateTests(TestCase):
+    def test_form_renders_the_date_picker_with_a_label(self):
+        response = self.client.get(reverse("todos:index"))
+        self.assertContains(response, '<label for="id_due_date" class="sr-only">Due date</label>', html=True)
+        self.assertContains(response, 'name="due_date"')
+        self.assertContains(response, 'popovertarget="id_due_date-calendar"')
+
+    def test_create_with_due_date_saves_and_shows_it(self):
+        response = self.client.post(
+            reverse("todos:create"), {"title": "File taxes", "due_date": "2099-04-15"}, headers=HX
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Todo.objects.get().due_date, date(2099, 4, 15))
+        self.assertContains(response, '<time datetime="2099-04-15"')
+        self.assertContains(response, "Due 15 Apr 2099")
+
+    def test_create_without_due_date_still_works(self):
+        response = self.client.post(reverse("todos:create"), {"title": "Someday"}, headers=HX)
+        self.assertIsNone(Todo.objects.get().due_date)
+        self.assertNotContains(response, "<time")
+
+    def test_invalid_due_date_shows_error_keeps_text_and_creates_nothing(self):
+        response = self.client.post(
+            reverse("todos:create"), {"title": "File taxes", "due_date": "2026-02-30"}, headers=HX
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Todo.objects.count(), 0)
+        self.assertContains(response, 'value="2026-02-30"')
+        self.assertContains(response, 'id="id_due_date_error"')
+        self.assertContains(response, "Enter a valid date.")
+
+    def test_overdue_means_past_and_not_done(self):
+        self.assertTrue(Todo(title="a", due_date=date(2000, 1, 1)).overdue)
+        self.assertFalse(Todo(title="a", due_date=date(2000, 1, 1), done=True).overdue)
+        self.assertFalse(Todo(title="a", due_date=date(2999, 1, 1)).overdue)
+        self.assertFalse(Todo(title="a").overdue)
+
+    def test_overdue_row_is_flagged(self):
+        Todo.objects.create(title="Late", due_date=date(2000, 1, 1))
+        self.assertContains(self.client.get(reverse("todos:index")), "Overdue · 1 Jan 2000")

@@ -6,12 +6,17 @@
       hx-indicator="#form-indicator">
   {% csrf_token %}
   {{ form.title }}
+  <label for="{{ form.due_date.id_for_label }}" class="sr-only">Due date</label>
+  {{ form.due_date }}
   <button type="submit"
           class="rounded-lg bg-blue-600 px-4 py-2.5 font-medium text-white hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:bg-blue-500 dark:hover:bg-blue-400">
     Add
   </button>
-  <span id="form-indicator" class="htmx-indicator text-sm text-slate-500 dark:text-slate-400" aria-hidden="true">Saving…</span>
+  <span id="form-indicator" class="htmx-indicator basis-full text-sm text-slate-500 dark:text-slate-400" aria-hidden="true">Saving…</span>
   {% if form.title.errors %}
     <p id="{{ form.title.id_for_label }}_error" class="basis-full text-sm text-red-700 dark:text-red-400" role="alert">{{ form.title.errors.0 }}</p>
+  {% endif %}
+  {% if form.due_date.errors %}
+    <p id="{{ form.due_date.id_for_label }}_error" class="basis-full text-sm text-red-700 dark:text-red-400" role="alert">{{ form.due_date.errors.0 }}</p>
   {% endif %}
 </form>

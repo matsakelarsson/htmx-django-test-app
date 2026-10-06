@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_htmx',
     'django_tailwind_cli',
+    'datepicker',
     'todos',
 ]
 

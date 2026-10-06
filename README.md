@@ -2,7 +2,8 @@
 
 A small Django 6 project wired up with [htmx](https://htmx.org) 2 and Tailwind CSS 4, built to try
 out server-driven partial updates. The demo is a todo list with tags where every interaction is an
-HTMX request that returns HTML fragments, including dragging a todo onto a tag.
+HTMX request that returns HTML fragments, including dragging a todo onto a tag and choosing a due
+date from a server-rendered date picker.
 
 There is no Node.js and no hand-written JavaScript. Tailwind is compiled by
 [django-tailwind-cli](https://django-tailwind-cli.readthedocs.io/), which downloads the standalone
@@ -42,6 +43,9 @@ uv run python manage.py createsuperuser    # then browse /admin/
 | Add with a tag's picker | plain form with `hx-post` to the same URL | Same as a drop |
 | Remove a todo from a tag | `hx-delete`, `hx-swap="outerHTML"` | The tag card, with focus moved to its picker |
 | Create a tag | `hx-post`, `hx-target="this"` | A fresh form plus the tag list out of band, or 422 with the error |
+| Open the date picker | `popovertarget` plus `hx-get` on the same button | The month grid for whatever the input holds |
+| Change month or year | `hx-get`, `hx-swap="innerHTML"` into the popover | The new month grid |
+| Pick a day | `hx-get`, `hx-swap="outerHTML"` on the widget | The whole widget with the date filled in and the popover closed |
 
 Other bits worth noticing:
 
@@ -98,11 +102,64 @@ If you upgrade to htmx 4, the drag-and-drop attributes need no changes. Accordin
 upgrade notes, attribute inheritance becomes explicit, so the `hx-headers` on `<body>` that
 carries the CSRF token will need the `:inherited` suffix.
 
+## Date picker
+
+`datepicker/` is a small reusable app: a form widget that pairs a text input with a calendar
+popover. It uses only Django, htmx attributes and Tailwind classes. The templates contain no
+script, no `hx-on` handler and no evaluated expression, and a test enforces that.
+
+```python
+from datepicker.widgets import DatePickerInput
+
+class TodoForm(forms.ModelForm):
+    class Meta:
+        model = Todo
+        fields = ["title", "due_date"]
+        widgets = {"due_date": DatePickerInput()}
+```
+
+Include `datepicker.urls` under the `datepicker` namespace, as `config/urls.py` does.
+
+How it fits together:
+
+1. **Open.** The calendar button has `popovertarget`, so the browser's Popover API opens and closes
+   the panel, including on Escape and on a click outside. The same click carries `hx-get`, which
+   loads the month that matches whatever the input holds, typed or picked.
+2. **Navigate.** The month and year arrows are `hx-get` buttons that swap the grid inside the
+   open popover. Stable ids let htmx put focus back on the arrow that was pressed.
+3. **Pick.** Each day is an `hx-get` button whose response is the whole widget with the date
+   filled in. The new popover arrives closed, so swapping it in is what closes the calendar.
+4. **Place.** CSS anchor positioning puts the popover under the input and flips it above when
+   there is no room. Browsers without it show the popover centred instead.
+
+Things worth knowing:
+
+- **The input stays typable.** It accepts every format the form field accepts, and the calendar
+  follows it. Typing is also the quick route for keyboard users, because the days are ordinary
+  buttons reached with Tab rather than an arrow-key grid, which would need JavaScript.
+- **State lives in ARIA attributes.** The selected day has `aria-pressed`, today has
+  `aria-current="date"`, and Tailwind styles from those same attributes.
+- **The widget isolates itself.** htmx 2 lets children inherit attributes such as `hx-swap` and
+  `hx-indicator` from a surrounding form. The wrapper sets `hx-disinherit="*"` and every request
+  element names its own target and swap, so the widget behaves the same wherever it is placed.
+- **Locale aware.** The first day of the week and the month and weekday names follow Django's
+  active locale.
+- **"Today" is the server's date.** With `TIME_ZONE = "UTC"` it can differ from the visitor's
+  date around midnight.
+- **Use a `<label>` for the field.** A pick re-renders the widget from its field name and id
+  alone, so extra attrs passed to the widget are not carried over.
+
+Browser support, from MDN's compatibility data: the Popover API needs Chrome 114, Firefox 125 or
+Safari 17. Anchor positioning needs Chrome 129, Firefox 147 or Safari 26. Verified with the Django
+tests and with real clicks and key presses in headless Brave (Chromium 154). Not exercised in
+Firefox or Safari.
+
 ## Layout
 
 ```
 config/                 Django project (settings, root urls)
 todos/                  App: models (Todo, Tag), forms, views, urls, tests
+datepicker/             Reusable date picker: widget, views, urls, tests, and its own templates
 templates/
   base.html             Page shell: Tailwind stylesheet, htmx script tag
   todos/

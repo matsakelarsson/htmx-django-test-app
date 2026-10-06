@@ -1,0 +1,27 @@
+{% comment %}
+  The wrapper is the CSS anchor the calendar positions itself against. The button opens the
+  popover natively (popovertarget) and, on the same click, has htmx load the month that matches
+  whatever the input holds. Picking a day swaps this whole element, which closes the popover.
+
+  The widget usually sits inside a form that has htmx attributes of its own. hx-disinherit keeps
+  those from leaking in, and every request element below names its own target and swap.
+{% endcomment %}
+<div id="{{ picker.id }}-picker" class="relative" style="anchor-name: --dp-{{ picker.id }}" hx-disinherit="*">
+  <input type="text" name="{{ widget.name }}"{% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}{% include "django/forms/widgets/attrs.html" %}>
+  <button type="button" id="{{ picker.id }}-toggle" aria-label="Choose date"{% if picker.focus_toggle %} autofocus{% endif %}
+          popovertarget="{{ picker.id }}-calendar"
+          hx-get="{{ picker.calendar_url }}" hx-include="#{{ picker.id }}"
+          hx-target="#{{ picker.id }}-calendar" hx-swap="innerHTML"
+          class="absolute inset-y-0 right-0 flex w-10 items-center justify-center rounded-r-lg text-slate-500 hover:text-blue-600 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-600 dark:text-slate-400 dark:hover:text-blue-400">
+    <svg aria-hidden="true" viewBox="0 0 20 20" class="size-5 fill-none stroke-current stroke-[1.5]">
+      <rect x="3" y="4.5" width="14" height="12.5" rx="2"/>
+      <path d="M3 8.5h14M7 2.5v4M13 2.5v4" stroke-linecap="round"/>
+    </svg>
+  </button>
+  {# No display utility here: the browser hides a popover until it is opened. #}
+  <div popover id="{{ picker.id }}-calendar" role="dialog" aria-label="Choose date"
+       style="position-anchor: --dp-{{ picker.id }}"
+       class="max-h-[calc(100dvh-1rem)] min-h-[23.25rem] w-72 rounded-xl border border-slate-200 bg-white p-0 text-slate-900 shadow-xl [position-area:bottom_span-right] [position-try-fallbacks:flip-block] supports-[position-area:bottom]:inset-auto supports-[position-area:bottom]:m-0 supports-[position-area:bottom]:mt-1 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
+    <p class="p-4 text-sm text-slate-500 dark:text-slate-400">Loading calendar…</p>
+  </div>
+</div>

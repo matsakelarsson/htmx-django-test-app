@@ -5,7 +5,7 @@ from .models import Tag, Todo
 
 @admin.register(Todo)
 class TodoAdmin(admin.ModelAdmin):
-    list_display = ("title", "done", "created_at")
+    list_display = ("title", "done", "due_date", "created_at")
     list_filter = ("done",)
     search_fields = ("title",)
 
